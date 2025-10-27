@@ -1,0 +1,9 @@
+REST API principles:
+1. Stateless: every HTTP-request contains all important information for its processing.
+No need in keeping history of previous requests.
+2. Client-Server: the full autonomy of both client and server side of application.
+Client can be anything: website or mobile application as server side can be written on any language.
+3. Uniform Interface: only 4 methods of communication between client and server sides.
+4. Cacheable: client temporarily keeps some data to relieve server side from constant requests.
+5. Layered System: server part can be organised in multi-layered way to get flexibility and scaling advantages.
+6. Code on demand: non-mandatory principle of server opportunity to send executable code to client side/
