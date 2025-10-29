@@ -306,7 +306,6 @@ class Person(models.Model):
     patronym = models.CharField(max_length=255, blank=True, null=True)
     gender = models.CharField(max_length=10, blank=True, null=True)
     birth_date = models.DateField(blank=True, null=True)
-    roles = models.ManyToManyField('Role', through='PersonRole')
 
     def __str__(self):
         return f"{self.surname} {self.name}"
