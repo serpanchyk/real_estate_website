@@ -220,8 +220,8 @@ class Estate(models.Model):
     transaction_type = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     status = models.CharField(max_length=50)
-    owners = models.ManyToManyField('Person', through='EstateOwner')
-    employees = models.ManyToManyField('Person', through='EstateEmployee')
+    owners = models.ManyToManyField('Person', through='EstateOwner', related_name='owned_estates')
+    employees = models.ManyToManyField('Person', through='EstateEmployee', related_name='managed_estates')
 
     def __str__(self):
         return f"Estate {self.estate_id} at {self.street} {self.house_number}"
