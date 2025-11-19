@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contract</title>
+</head>
+<body>
+    <h1>Id of contract: {{ contract.contract_id }}</h1>
+
+    <h3>Id of estate: {{ contract.estate_id }}</h3>
+    <h3>Id of agent that signed the contract: {{ contract.employee_id }}</h3>
+    <h3>Id of client: {{ contract.client_id }}</h3>
+
+    <h3>Contract type: {{ contract.contract_type }}</h3>
+    <h3>Date signed: {{ contract.date_signed }}</h3>
+    <h3>Start date: {{ contract.start_date }}</h3>
+    <h3>End date: {{ contract.end_date }}</h3>
+
+    <h3>Payment amount: {{ contract.payment_amount }}</h3>
+    <h3>Fee percentage: {{ contract.fee_percentage }}</h3>
+
+    <h3>Terms:</h3>
+    <p>{{ contract.terms }}</p>
+
+    <form action="{% url 'delete_contract' contract.contract_id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" style="background:red; color:white; padding:8px 16px; border:none; border-radius:6px;">
+            Delete contract
+        </button>
+    </form>
+
+</body>
+</html>

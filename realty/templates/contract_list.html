@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List of all contracts</title>
+</head>
+<body>
+    <h1>List of all contracts</h1>
+    <a href="create-contract/"><button type="submit" style="background:green; color:white; padding:8px 16px; border:none; border-radius:6px;">
+            Create contract
+    </button></a>
+    {% for contract in contract_list %}
+        <li><a href="/api/contract_list/{{ contract.contract_id }}/">Id: {{ contract.contract_id }}.
+            Terms: {{contract.terms}}</a></li>
+
+    {% endfor %}
+</body>
+</html>

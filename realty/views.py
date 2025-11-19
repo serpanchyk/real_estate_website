@@ -1,7 +1,9 @@
+from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework import permissions
 from . import models as m
+from .forms import ContractForm
 from .repositories import UnitOfWork
 from . import serialisers as s
 from django.db.models import Count
@@ -154,3 +156,33 @@ class PhoneViewSet(BaseRepositoryViewSet):
     serializer_class = s.PhoneSerializer
     queryset = m.Phone.objects.all()
     repository_name = "phones"
+
+
+def contract_list(request):
+    contract_list = m.Contract.objects.all()
+    context = {"contract_list": contract_list}
+    return render(request, "contract_list.html", context)
+
+def contract_detail(request, contract_id):
+    contract = get_object_or_404(m.Contract, pk=contract_id)
+    return render(request, "contract_detail.html", {"contract": contract})
+
+def create_contract(request):
+    if request.method == 'POST':
+        form = ContractForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('contract_list')
+    else:
+        form = ContractForm()
+
+    return render(request, 'create_contract.html', {'form': form})
+
+def delete_contract(request, contract_id):
+    contract = get_object_or_404(m.Contract, pk=contract_id)
+
+    if request.method == "POST":
+        contract.delete()
+        return redirect("contract_list")
+
+    return redirect("contract_detail", contract_id=contract.contract_id)

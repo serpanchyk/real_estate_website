@@ -308,7 +308,7 @@ class Person(models.Model):
     birth_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.surname} {self.name}"
+        return f"Id: {self.person_id}, {self.surname} {self.name}"
 
     class Meta:
         managed = False

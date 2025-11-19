@@ -25,4 +25,8 @@ urlpatterns = [
         name='report-estates-by-settlement'
     ),
     path('', include(router.urls)),
+    path("contract_list", views.contract_list, name="contract_list"),
+    path("contract_list/<int:contract_id>/", views.contract_detail, name="contract_detail"),
+    path("contract_list/<int:contract_id>/delete/", views.delete_contract, name="delete_contract"),
+    path('create-contract/', views.create_contract, name='create_contract'),
 ]

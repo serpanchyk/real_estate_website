@@ -1,0 +1,13 @@
+<h1>Director API Items</h1>
+<ul>
+  {% for item in items %}
+    <li>
+      {{ item.name }} {{ item.surname }} (ID: {{ item.director_id }})
+        <form method="POST" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="delete_id" value="{{ item.director_id }}">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </li>
+  {% endfor %}
+</ul>
