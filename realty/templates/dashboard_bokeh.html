@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bokeh Analytics Dashboard (V2)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.6.0.min.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="max-w-7xl mx-auto p-6">
+        <header class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">📊 Dashboard V2 (Bokeh)</h1>
+                <p class="text-gray-500">Server-Side Rendering Implementation</p>
+            </div>
+        </header>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div class="bg-white p-4 rounded-lg shadow">
+                {{ divs.revenue | safe }}
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow">
+                {{ divs.market | safe }}
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow">
+                {{ divs.hot | safe }}
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow">
+                {{ divs.rooms | safe }}
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow">
+                {{ divs.employees | safe }}
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow">
+                {{ divs.whale | safe }}
+            </div>
+
+        </div>
+    </div>
+
+
+    {{ script | safe }}
+
+</body>
+</html>

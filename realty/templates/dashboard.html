@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate AI Analytics</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="max-w-7xl mx-auto p-6">
+
+        <header class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">📊 Executive AI Dashboard</h1>
+                <p class="text-gray-500 mt-1">Real-time market insights powered by Django & Pandas</p>
+            </div>
+            <div>
+                <a href="/" class="text-blue-600 hover:underline">← Back to Site</a>
+            </div>
+        </header>
+
+        <div id="stats-container" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-lg shadow border border-gray-100 animate-pulse h-24"></div>
+            <div class="bg-white p-4 rounded-lg shadow border border-gray-100 animate-pulse h-24"></div>
+            <div class="bg-white p-4 rounded-lg shadow border border-gray-100 animate-pulse h-24"></div>
+            <div class="bg-white p-4 rounded-lg shadow border border-gray-100 animate-pulse h-24"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
+                <h2 class="text-lg font-semibold mb-2">Monthly Revenue Trend</h2>
+                <div id="revenueChart" class="h-80 w-full"></div>
+            </div>
+
+            <!-- Chart 2: Market Analysis (Grouped Bar) -->
+            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
+                <h2 class="text-lg font-semibold mb-2">House vs Apartment Prices</h2>
+                <div id="marketChart" class="h-80 w-full"></div>
+            </div>
+
+            <!-- Chart 3: Hot Settlements (Bar) -->
+            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
+                <h2 class="text-lg font-semibold mb-2">Most Active Markets</h2>
+                <div id="settlementChart" class="h-80 w-full"></div>
+            </div>
+
+            <!-- Chart 4: Room Stats (Scatter/Line) -->
+            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
+                <h2 class="text-lg font-semibold mb-2">Price vs. Room Count Correlation</h2>
+                <div id="roomChart" class="h-80 w-full"></div>
+            </div>
+
+            <!-- Chart 5: Top Employees (Horizontal Bar) -->
+            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
+                <h2 class="text-lg font-semibold mb-2">Top Performing Agents</h2>
+                <div id="employeeChart" class="h-80 w-full"></div>
+            </div>
+
+            <!-- Chart 6: Whale Owners (Donut) -->
+            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
+                <h2 class="text-lg font-semibold mb-2">Asset Distribution (Whale Owners)</h2>
+                <div id="whaleChart" class="h-80 w-full"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        fetch('/api/analytics/general-statistics/')
+            .then(response => response.json())
+            .then(stats => {
+                const container = document.getElementById('stats-container');
+                if (stats.data) {
+                    const d = stats.data;
+                    container.innerHTML = `
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                            <p class="text-sm text-gray-500">Total Revenue Mean</p>
+                            <p class="text-2xl font-bold">$${d.mean.toLocaleString()}</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                            <p class="text-sm text-gray-500">Median Revenue</p>
+                            <p class="text-2xl font-bold">$${d.median.toLocaleString()}</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
+                            <p class="text-sm text-gray-500">Best Month</p>
+                            <p class="text-2xl font-bold">$${d.max.toLocaleString()}</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+                            <p class="text-sm text-gray-500">Worst Month</p>
+                            <p class="text-2xl font-bold">$${d.min.toLocaleString()}</p>
+                        </div>
+                    `;
+                }
+            });
+
+        fetch('/api/analytics/financials/monthly/')
+            .then(response => response.json())
+            .then(data => {
+                const months = data.map(item => item.month);
+                const revenue = data.map(item => item.total_revenue);
+
+                const trace = {
+                    x: months,
+                    y: revenue,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: {color: '#10B981', width: 3, shape: 'spline'},
+                    fill: 'tozeroy',
+                    name: 'Revenue'
+                };
+
+                const layout = {
+                    margin: {t: 10, l: 40, r: 10, b: 30},
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)'
+                };
+
+                Plotly.newPlot('revenueChart', [trace], layout);
+            });
+
+        fetch('/api/analytics/settlements/market/')
+            .then(response => response.json())
+            .then(data => {
+                const cities = data.map(item => item.name);
+
+                const traceHouse = {
+                    x: cities,
+                    y: data.map(item => item.avg_house_price),
+                    name: 'Avg House Price',
+                    type: 'bar',
+                    marker: {color: '#3B82F6'}
+                };
+                const traceApt = {
+                    x: cities,
+                    y: data.map(item => item.avg_apartment_price),
+                    name: 'Avg Apt Price',
+                    type: 'bar',
+                    marker: {color: '#F59E0B'}
+                };
+
+                const layout = {
+                    barmode: 'group',
+                    margin: {t: 10, l: 40, r: 10, b: 30}
+                };
+
+                Plotly.newPlot('marketChart', [traceHouse, traceApt], layout);
+            });
+
+        fetch('/api/analytics/settlements/hot/')
+            .then(response => response.json())
+            .then(data => {
+                const names = data.map(item => item.name);
+                const counts = data.map(item => item.number_of_estates);
+
+                const trace = {
+                    x: names,
+                    y: counts,
+                    type: 'bar',
+                    marker: {
+                        color: counts,
+                        colorscale: 'Viridis'
+                    }
+                };
+
+                const layout = { margin: {t: 10, l: 40, r: 10, b: 50} };
+                Plotly.newPlot('settlementChart', [trace], layout);
+            });
+
+        fetch('/api/analytics/apartments/rooms/')
+            .then(response => response.json())
+            .then(data => {
+                const rooms = data.map(item => item.rooms);
+                const prices = data.map(item => item.avg_price);
+                const sizes = data.map(item => item.supply_count * 5);
+
+                const trace = {
+                    x: rooms,
+                    y: prices,
+                    mode: 'markers',
+                    marker: {
+                        size: sizes,
+                        color: prices,
+                        colorscale: 'Portland',
+                        showscale: true
+                    },
+                    text: data.map(item => `Supply: ${item.supply_count}`),
+                    name: 'Avg Price'
+                };
+
+                const layout = {
+                    margin: {t: 10, l: 40, r: 10, b: 30},
+                    xaxis: {title: 'Number of Rooms'},
+                    yaxis: {title: 'Average Price'}
+                };
+
+                Plotly.newPlot('roomChart', [trace], layout);
+            });
+
+        fetch('/api/analytics/employees/top/')
+            .then(response => response.json())
+            .then(data => {
+                const top5 = data.slice(0, 5);
+                const names = top5.map(item => item.surname);
+                const sales = top5.map(item => item.total_sales_volume);
+
+                const trace = {
+                    x: sales,
+                    y: names,
+                    type: 'bar',
+                    orientation: 'h', // Horizontal
+                    marker: {color: '#8B5CF6'}
+                };
+
+                const layout = {
+                    margin: {t: 10, l: 80, r: 10, b: 30}
+                };
+
+                Plotly.newPlot('employeeChart', [trace], layout);
+            });
+
+        fetch('/api/analytics/owners/whales/')
+            .then(response => response.json())
+            .then(data => {
+                const top5 = data.slice(0, 5);
+                const names = top5.map(item => `${item.name} ${item.surname}`);
+                const values = top5.map(item => item.total_assets);
+
+                const trace = {
+                    labels: names,
+                    values: values,
+                    type: 'pie',
+                    hole: .4,
+                    textinfo: 'label+percent',
+                    textposition: 'inside',
+                    automargin: true
+                };
+
+                const layout = {
+                    margin: {t: 10, l: 10, r: 10, b: 10},
+                    showlegend: false
+                };
+
+                Plotly.newPlot('whaleChart', [trace], layout);
+            });
+
+    </script>
+</body>
+</html>
