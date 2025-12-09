@@ -5,46 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bokeh Analytics Dashboard (V2)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.6.0.min.js"></script>
+
+    {{ resources | safe }}
 </head>
 <body class="bg-gray-100 text-gray-800">
 
     <div class="max-w-7xl mx-auto p-6">
         <header class="mb-8 flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">📊 Dashboard V2 (Bokeh)</h1>
-                <p class="text-gray-500">Server-Side Rendering Implementation</p>
+                <h1 class="text-3xl font-bold text-gray-900">📊 Dashboard V2 (Interactive)</h1>
+                <p class="text-gray-500">Filter and sort data in real-time</p>
+            </div>
+            <div>
+                <a href="/" class="text-blue-600 hover:underline">← Back to Site</a>
             </div>
         </header>
+
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Show Top Cities: <span id="val_cities" class="font-bold text-blue-600">{{ current_filters.top_cities }}</span>
+                    </label>
+                    <input type="range" name="top_cities" min="5" max="50" step="5"
+                           value="{{ current_filters.top_cities }}"
+                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                           oninput="document.getElementById('val_cities').innerText = this.value">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Min Rooms (Correlation Chart)</label>
+                    <select name="min_rooms" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option value="0" {% if current_filters.min_rooms == 0 %}selected{% endif %}>All Rooms</option>
+                        <option value="2" {% if current_filters.min_rooms == 2 %}selected{% endif %}>2+ Rooms</option>
+                        <option value="3" {% if current_filters.min_rooms == 3 %}selected{% endif %}>3+ Rooms</option>
+                        <option value="4" {% if current_filters.min_rooms == 4 %}selected{% endif %}>4+ Rooms</option>
+                    </select>
+                </div>
+
+                <div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition duration-150">
+                        Apply Filters
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <div class="bg-white p-4 rounded-lg shadow">
-                {{ divs.revenue | safe }}
-            </div>
-
-            <div class="bg-white p-4 rounded-lg shadow">
-                {{ divs.market | safe }}
-            </div>
-
-            <div class="bg-white p-4 rounded-lg shadow">
-                {{ divs.hot | safe }}
-            </div>
-
-            <div class="bg-white p-4 rounded-lg shadow">
-                {{ divs.rooms | safe }}
-            </div>
-
-            <div class="bg-white p-4 rounded-lg shadow">
-                {{ divs.employees | safe }}
-            </div>
-
-            <div class="bg-white p-4 rounded-lg shadow">
-                {{ divs.whale | safe }}
-            </div>
-
+            <div class="bg-white p-4 rounded-lg shadow">{{ divs.revenue | safe }}</div>
+            <div class="bg-white p-4 rounded-lg shadow">{{ divs.market | safe }}</div>
+            <div class="bg-white p-4 rounded-lg shadow">{{ divs.hot | safe }}</div>
+            <div class="bg-white p-4 rounded-lg shadow">{{ divs.rooms | safe }}</div>
+            <div class="bg-white p-4 rounded-lg shadow">{{ divs.employees | safe }}</div>
+            <div class="bg-white p-4 rounded-lg shadow">{{ divs.whale | safe }}</div>
         </div>
     </div>
-
 
     {{ script | safe }}
 

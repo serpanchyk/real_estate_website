@@ -10,29 +10,29 @@ from .repositories import UnitOfWork
 from . import serialisers as s
 from django.db.models import Count
 from rest_framework.views import APIView
-
-
-import pandas as pd
 from math import pi
-
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.palettes import Spectral6, Magma256, Viridis256
 from bokeh.transform import cumsum, factor_cmap
-from bokeh.resources import CDN
+from bokeh.resources import CDN, INLINE
 
 
 def analytics_dashboard_bokeh(request):
-
     uow = UnitOfWork()
 
-    def safe_dataframe(data, float_cols=None, str_cols=None):
+    try:
+        top_cities_filter = int(request.GET.get('top_cities', 20))
+        min_rooms_filter = int(request.GET.get('min_rooms', 0))
+    except ValueError:
+        top_cities_filter = 20
+        min_rooms_filter = 0
 
+    def safe_dataframe(data, float_cols=None, str_cols=None):
         df = pd.DataFrame(list(data))
 
         if df.empty:
-
             all_cols = (float_cols or []) + (str_cols or [])
             return pd.DataFrame({c: [] for c in all_cols})
 
@@ -65,7 +65,12 @@ def analytics_dashboard_bokeh(request):
         uow.settlements.hot_settlements(),
         float_cols=['number_of_estates'],
         str_cols=['name']
-    ).sort_values('number_of_estates', ascending=False).head(50)
+    )
+
+    if not df_hot.empty:
+        df_hot = df_hot.groupby('name', as_index=False)['number_of_estates'].sum()
+
+    df_hot = df_hot.sort_values('number_of_estates', ascending=False).head(top_cities_filter)
 
     df_mkt = safe_dataframe(
         uow.settlements.market_analysis(),
@@ -73,10 +78,16 @@ def analytics_dashboard_bokeh(request):
         str_cols=['name']
     )
 
+    if not df_mkt.empty:
+        df_mkt = df_mkt.groupby('name', as_index=False)[['avg_house_price', 'avg_apartment_price']].mean()
+
     df_rooms = safe_dataframe(
         uow.apartments.stats_by_rooms(),
         float_cols=['avg_price', 'rooms']
     )
+
+    if not df_rooms.empty:
+        df_rooms = df_rooms[df_rooms['rooms'] >= min_rooms_filter]
 
     df_emp = safe_dataframe(
         uow.people.top_revenue_employees(),
@@ -88,7 +99,7 @@ def analytics_dashboard_bokeh(request):
         uow.people.top_owners(),
         float_cols=['total_assets'],
         str_cols=['surname']
-    ).sort_values('total_assets', ascending=False).head(20)
+    ).sort_values('total_assets', ascending=False).head(5)
 
     source_rev = ColumnDataSource(df_rev)
     p1 = figure(title="Monthly Revenue Trend", x_axis_type="datetime", height=350, sizing_mode="stretch_width")
@@ -100,9 +111,9 @@ def analytics_dashboard_bokeh(request):
 
     source_hot = ColumnDataSource(df_hot)
     cities = df_hot['name'].tolist()
-    p2 = figure(x_range=cities, title="Most Active Markets (Top 50)", height=350, sizing_mode="stretch_width")
+    p2 = figure(x_range=cities, title=f"Most Active Markets (Top {top_cities_filter})", height=350,
+                sizing_mode="stretch_width")
     if not df_hot.empty:
-
         palette = Magma256[:len(cities)] if len(cities) <= 256 else Magma256
         p2.vbar(x='name', top='number_of_estates', width=0.8, source=source_hot,
                 line_color='white', fill_color=factor_cmap('name', palette=palette, factors=cities))
@@ -135,14 +146,11 @@ def analytics_dashboard_bokeh(request):
     p5.xaxis.major_label_orientation = 1.2
 
     if not df_whale.empty and df_whale['total_assets'].sum() > 0:
-
         df_whale['angle'] = df_whale['total_assets'] / df_whale['total_assets'].sum() * 2 * pi
-
         count = len(df_whale)
         if count <= 6:
             df_whale['color'] = Spectral6[:count]
         else:
-
             df_whale['color'] = Magma256[:count] if count <= 256 else Magma256[:256]
     else:
         df_whale['angle'] = []
@@ -163,12 +171,16 @@ def analytics_dashboard_bokeh(request):
         'employees': p4, 'market': p5, 'whale': p6
     })
 
-    resources = CDN.render()
+    resources = INLINE.render()
 
     return render(request, "dashboard_bokeh.html", {
         'script': script,
         'divs': divs,
-        'resources': resources
+        'resources': resources,
+        'current_filters': {
+            'top_cities': top_cities_filter,
+            'min_rooms': min_rooms_filter
+        }
     })
 
 
@@ -214,8 +226,6 @@ class AnalyticsViewSet(viewsets.ViewSet):
 
         return Response(stats)
 
-
-
     @action(detail=False, methods=['get'], url_path='settlements/hot')
     def hot_settlements(self, request):
         data = self.uow.settlements.hot_settlements()
@@ -252,7 +262,6 @@ def analytics_dashboard(request):
 
 
 class BaseRepositoryViewSet(viewsets.ViewSet):
-
     serializer_class = None
     queryset = None
     repository_name = None
@@ -296,12 +305,13 @@ class BaseRepositoryViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
-        item_to_delete = self.repository.get_by_id(pk)  # Використовуємо інше ім'я змінної
+        item_to_delete = self.repository.get_by_id(pk)
         if item_to_delete is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         self.repository.delete(pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class EstateCountBySettlementReportView(APIView):
     def get(self, request, format=None):
@@ -315,6 +325,7 @@ class EstateCountBySettlementReportView(APIView):
         )
 
         return Response(list(report_data))
+
 
 class ApartmentViewSet(BaseRepositoryViewSet):
     serializer_class = s.ApartmentSerializer
@@ -405,9 +416,11 @@ def contract_list(request):
     context = {"contract_list": contract_list}
     return render(request, "contract_list.html", context)
 
+
 def contract_detail(request, contract_id):
     contract = get_object_or_404(m.Contract, pk=contract_id)
     return render(request, "contract_detail.html", {"contract": contract})
+
 
 def create_contract(request):
     if request.method == 'POST':
@@ -419,6 +432,7 @@ def create_contract(request):
         form = ContractForm()
 
     return render(request, 'create_contract.html', {'form': form})
+
 
 def delete_contract(request, contract_id):
     contract = get_object_or_404(m.Contract, pk=contract_id)
