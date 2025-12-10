@@ -22,6 +22,7 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('realty.urls')),
+    path('api/benchmark/', views.benchmark_data_api, name='benchmark_data_api'),
     path('api/get-token/', obtain_auth_token, name='api_token_auth'),
     path("transport_service/companies", views.list_companies_api, name='list_companies_api'),
     path("transport_service/directors", views.list_directors_api, name='list_directors_api'),

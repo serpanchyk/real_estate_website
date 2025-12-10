@@ -1,5 +1,15 @@
 from django.shortcuts import render, redirect
 from .NetworkHelper import NetworkHelper
+from django.http import JsonResponse
+from .services import BenchmarkService
+
+def benchmark_data_api(request):
+    requests_count = int(request.GET.get('requests', 100))
+
+    service = BenchmarkService(query_count=requests_count)
+    data = service.run_benchmark_experiment()
+
+    return JsonResponse(data, safe = False)
 
 helper_1 = NetworkHelper(
     api_url="http://127.0.0.1:7000/companies",

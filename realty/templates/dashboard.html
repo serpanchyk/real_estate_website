@@ -6,246 +6,303 @@
     <title>Real Estate AI Analytics</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom animation for the benchmark loading state */
+        .cursor-wait { cursor: wait; }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-slate-50 text-slate-800 antialiased">
 
-    <div class="max-w-7xl mx-auto p-6">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">📊</span>
+                <span class="font-bold text-xl tracking-tight text-slate-900">Executive AI Dashboard</span>
+            </div>
+            <a href="/" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors duration-200 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Site
+            </a>
+        </div>
+    </nav>
 
-        <header class="mb-8 flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">📊 Executive AI Dashboard</h1>
-                <p class="text-gray-500 mt-1">Real-time market insights powered by Django & Pandas</p>
-            </div>
-            <div>
-                <a href="/" class="text-blue-600 hover:underline">← Back to Site</a>
-            </div>
+    <div class="max-w-7xl mx-auto p-6 space-y-8">
+
+        <header class="text-center py-4">
+            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                Real-Time Market Intelligence
+            </h1>
+            <p class="text-slate-500 mt-2 text-lg">Live insights powered by Django, Pandas & Parallel Computing</p>
         </header>
 
-        <div id="stats-container" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-4 rounded-lg shadow border border-gray-100 animate-pulse h-24"></div>
-            <div class="bg-white p-4 rounded-lg shadow border border-gray-100 animate-pulse h-24"></div>
-            <div class="bg-white p-4 rounded-lg shadow border border-gray-100 animate-pulse h-24"></div>
-            <div class="bg-white p-4 rounded-lg shadow border border-gray-100 animate-pulse h-24"></div>
+        <div id="stats-container" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 animate-pulse h-24"></div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 animate-pulse h-24"></div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 animate-pulse h-24"></div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 animate-pulse h-24"></div>
         </div>
+
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-indigo-50 rounded-full blur-xl opacity-70"></div>
+
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-10">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        ⚡ Database Concurrency Benchmark
+                    </h2>
+                    <p class="text-slate-500 mt-1">
+                        Multithreading performance analysis (Grid Search: 1-32 Workers)
+                    </p>
+                </div>
+                <button id="btnRunBenchmark" class="mt-4 md:mt-0 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-md transition duration-200 transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <span id="btnIcon">▶</span>
+                    <span id="btnText">Run Experiment</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="bg-slate-50 p-6 rounded-lg border border-slate-100 text-sm text-slate-600 leading-relaxed">
+                    <h3 class="font-bold text-slate-800 mb-3 text-base">🔬 Experiment Logic</h3>
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li><strong>Goal:</strong> Find optimal thread count for I/O operations.</li>
+                        <li><strong>Method:</strong> Executes batches of queries concurrently using <code>ThreadPoolExecutor</code>.</li>
+                        <li><strong>Hypothesis:</strong> Latency decreases as threads increase, until Context Switching overhead takes over.</li>
+                    </ul>
+                </div>
+
+                <div id="benchmarkChart" class="lg:col-span-2 h-80 bg-slate-50 border-2 border-dashed border-slate-200 rounded-lg flex items-center justify-center text-slate-400">
+                    <div class="text-center">
+                        <p class="text-lg font-medium">Ready to start</p>
+                        <p class="text-sm">Click "Run Experiment" to visualize data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-bold text-slate-800 border-l-4 border-blue-500 pl-4">Market Overview</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
-                <h2 class="text-lg font-semibold mb-2">Monthly Revenue Trend</h2>
-                <div id="revenueChart" class="h-80 w-full"></div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-lg font-semibold text-slate-700 mb-4">Monthly Revenue Trend</h3>
+                <div id="revenueChart" class="h-72 w-full"></div>
             </div>
 
-            <!-- Chart 2: Market Analysis (Grouped Bar) -->
-            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
-                <h2 class="text-lg font-semibold mb-2">House vs Apartment Prices</h2>
-                <div id="marketChart" class="h-80 w-full"></div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-lg font-semibold text-slate-700 mb-4">House vs Apartment Prices</h3>
+                <div id="marketChart" class="h-72 w-full"></div>
             </div>
 
-            <!-- Chart 3: Hot Settlements (Bar) -->
-            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
-                <h2 class="text-lg font-semibold mb-2">Most Active Markets</h2>
-                <div id="settlementChart" class="h-80 w-full"></div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-lg font-semibold text-slate-700 mb-4">Most Active Markets</h3>
+                <div id="settlementChart" class="h-72 w-full"></div>
             </div>
 
-            <!-- Chart 4: Room Stats (Scatter/Line) -->
-            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
-                <h2 class="text-lg font-semibold mb-2">Price vs. Room Count Correlation</h2>
-                <div id="roomChart" class="h-80 w-full"></div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-lg font-semibold text-slate-700 mb-4">Price vs. Room Count</h3>
+                <div id="roomChart" class="h-72 w-full"></div>
             </div>
 
-            <!-- Chart 5: Top Employees (Horizontal Bar) -->
-            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
-                <h2 class="text-lg font-semibold mb-2">Top Performing Agents</h2>
-                <div id="employeeChart" class="h-80 w-full"></div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-lg font-semibold text-slate-700 mb-4">Top Performing Agents</h3>
+                <div id="employeeChart" class="h-72 w-full"></div>
             </div>
 
-            <!-- Chart 6: Whale Owners (Donut) -->
-            <div class="bg-white p-4 rounded-lg shadow border border-gray-100">
-                <h2 class="text-lg font-semibold mb-2">Asset Distribution (Whale Owners)</h2>
-                <div id="whaleChart" class="h-80 w-full"></div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <h3 class="text-lg font-semibold text-slate-700 mb-4">Asset Distribution (Whales)</h3>
+                <div id="whaleChart" class="h-72 w-full"></div>
             </div>
-
         </div>
+
+        <footer class="text-center text-slate-400 text-sm py-8 mt-8 border-t border-slate-200">
+            &copy; 2025 AI Department Student Lab
+        </footer>
+
     </div>
 
     <script>
+        // --- 1. BENCHMARK LOGIC (NEW) ---
+        document.getElementById('btnRunBenchmark').addEventListener('click', function() {
+            const btn = document.getElementById('btnRunBenchmark');
+            const btnText = document.getElementById('btnText');
+            const chartContainer = document.getElementById('benchmarkChart');
+
+            // UI Loading State
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-wait');
+            btnText.innerText = 'Running Stress Test...';
+            chartContainer.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full animate-pulse">
+                    <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-3"></div>
+                    <p class="text-indigo-600 font-bold">Simulating concurrent requests...</p>
+                    <p class="text-xs text-slate-400">Testing 1, 2, 4, 8, 16, 32 threads</p>
+                </div>`;
+
+            // Fetch from API
+            fetch('/api/benchmark/?requests=200')
+                .then(response => response.json())
+                .then(data => {
+                    const workers = data.map(d => d.workers);
+                    const durations = data.map(d => d.duration);
+                    const rps = data.map(d => d.rps);
+
+                    // Dual Axis Chart
+                    const traceRPS = {
+                        x: workers, y: rps,
+                        name: 'Throughput (Req/sec)',
+                        type: 'bar',
+                        marker: {color: '#6366F1', opacity: 0.8}, // Indigo-500
+                        yaxis: 'y2'
+                    };
+
+                    const traceTime = {
+                        x: workers, y: durations,
+                        name: 'Total Time (s)',
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        line: {color: '#EF4444', width: 3, shape: 'spline'}, // Red-500
+                        marker: {size: 8, color: '#DC2626'}
+                    };
+
+                    const layout = {
+                        title: { text: 'Scalability Analysis', font: { family: 'Inter', size: 16 } },
+                        paper_bgcolor: 'rgba(0,0,0,0)',
+                        plot_bgcolor: 'rgba(0,0,0,0)',
+                        margin: { t: 40, l: 40, r: 40, b: 40 },
+                        xaxis: { title: 'Number of Threads', type: 'category' },
+                        yaxis: { title: 'Time (s)', titlefont: {color: '#EF4444'}, tickfont: {color: '#EF4444'} },
+                        yaxis2: {
+                            title: 'RPS', titlefont: {color: '#6366F1'}, tickfont: {color: '#6366F1'},
+                            overlaying: 'y', side: 'right'
+                        },
+                        legend: { orientation: "h", y: 1.1 }
+                    };
+
+                    chartContainer.innerHTML = '';
+                    Plotly.newPlot('benchmarkChart', [traceRPS, traceTime], layout);
+
+                    // Reset Button
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75', 'cursor-wait');
+                    btnText.innerText = 'Run Again';
+                })
+                .catch(err => {
+                    console.error(err);
+                    chartContainer.innerHTML = '<p class="text-red-500 font-bold">Error. Check console.</p>';
+                    btn.disabled = false;
+                });
+        });
+
+        // --- 2. EXISTING CHARTS LOGIC ---
+
+        // General Stats
         fetch('/api/analytics/general-statistics/')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(stats => {
                 const container = document.getElementById('stats-container');
                 if (stats.data) {
                     const d = stats.data;
-                    container.innerHTML = `
-                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                            <p class="text-sm text-gray-500">Total Revenue Mean</p>
-                            <p class="text-2xl font-bold">$${d.mean.toLocaleString()}</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-                            <p class="text-sm text-gray-500">Median Revenue</p>
-                            <p class="text-2xl font-bold">$${d.median.toLocaleString()}</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
-                            <p class="text-sm text-gray-500">Best Month</p>
-                            <p class="text-2xl font-bold">$${d.max.toLocaleString()}</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-                            <p class="text-sm text-gray-500">Worst Month</p>
-                            <p class="text-2xl font-bold">$${d.min.toLocaleString()}</p>
-                        </div>
-                    `;
+                    const card = (label, val, color) => `
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 ${color}">
+                            <p class="text-sm text-slate-500 uppercase tracking-wider font-semibold">${label}</p>
+                            <p class="text-3xl font-bold text-slate-800 mt-1">$${val.toLocaleString()}</p>
+                        </div>`;
+
+                    container.innerHTML =
+                        card('Mean Revenue', d.mean, 'border-blue-500') +
+                        card('Median', d.median, 'border-emerald-500') +
+                        card('Max Deal', d.max, 'border-amber-500') +
+                        card('Min Deal', d.min, 'border-rose-500');
                 }
             });
 
+        // Revenue Chart
         fetch('/api/analytics/financials/monthly/')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                const months = data.map(item => item.month);
-                const revenue = data.map(item => item.total_revenue);
-
                 const trace = {
-                    x: months,
-                    y: revenue,
+                    x: data.map(i => i.month),
+                    y: data.map(i => i.total_revenue),
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: {color: '#10B981', width: 3, shape: 'spline'},
-                    fill: 'tozeroy',
-                    name: 'Revenue'
+                    line: {color: '#10B981', width: 3, shape: 'spline'}, // Emerald-500
+                    fill: 'tozeroy'
                 };
-
-                const layout = {
-                    margin: {t: 10, l: 40, r: 10, b: 30},
-                    paper_bgcolor: 'rgba(0,0,0,0)',
-                    plot_bgcolor: 'rgba(0,0,0,0)'
-                };
-
-                Plotly.newPlot('revenueChart', [trace], layout);
+                Plotly.newPlot('revenueChart', [trace], {
+                    margin: {t:10,l:40,r:10,b:30}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)'
+                });
             });
 
+        // Market Chart
         fetch('/api/analytics/settlements/market/')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                const cities = data.map(item => item.name);
-
-                const traceHouse = {
-                    x: cities,
-                    y: data.map(item => item.avg_house_price),
-                    name: 'Avg House Price',
-                    type: 'bar',
-                    marker: {color: '#3B82F6'}
-                };
-                const traceApt = {
-                    x: cities,
-                    y: data.map(item => item.avg_apartment_price),
-                    name: 'Avg Apt Price',
-                    type: 'bar',
-                    marker: {color: '#F59E0B'}
-                };
-
-                const layout = {
-                    barmode: 'group',
-                    margin: {t: 10, l: 40, r: 10, b: 30}
-                };
-
-                Plotly.newPlot('marketChart', [traceHouse, traceApt], layout);
+                const cities = data.map(i => i.name);
+                const trace1 = { x: cities, y: data.map(i => i.avg_house_price), name: 'House', type: 'bar', marker: {color: '#3B82F6'} };
+                const trace2 = { x: cities, y: data.map(i => i.avg_apartment_price), name: 'Apt', type: 'bar', marker: {color: '#F59E0B'} };
+                Plotly.newPlot('marketChart', [trace1, trace2], { barmode: 'group', margin: {t:10,l:40,r:10,b:30} });
             });
 
+        // Hot Settlements
         fetch('/api/analytics/settlements/hot/')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                const names = data.map(item => item.name);
-                const counts = data.map(item => item.number_of_estates);
-
                 const trace = {
-                    x: names,
-                    y: counts,
+                    x: data.map(i => i.name),
+                    y: data.map(i => i.number_of_estates),
                     type: 'bar',
-                    marker: {
-                        color: counts,
-                        colorscale: 'Viridis'
-                    }
+                    marker: {color: data.map(i => i.number_of_estates), colorscale: 'Viridis'}
                 };
-
-                const layout = { margin: {t: 10, l: 40, r: 10, b: 50} };
-                Plotly.newPlot('settlementChart', [trace], layout);
+                Plotly.newPlot('settlementChart', [trace], { margin: {t:10,l:30,r:10,b:50} });
             });
 
+        // Room Correlation
         fetch('/api/analytics/apartments/rooms/')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                const rooms = data.map(item => item.rooms);
-                const prices = data.map(item => item.avg_price);
-                const sizes = data.map(item => item.supply_count * 5);
-
                 const trace = {
-                    x: rooms,
-                    y: prices,
+                    x: data.map(i => i.rooms),
+                    y: data.map(i => i.avg_price),
                     mode: 'markers',
-                    marker: {
-                        size: sizes,
-                        color: prices,
-                        colorscale: 'Portland',
-                        showscale: true
-                    },
-                    text: data.map(item => `Supply: ${item.supply_count}`),
-                    name: 'Avg Price'
+                    marker: { size: data.map(i => i.supply_count * 5), color: data.map(i => i.avg_price), colorscale: 'Portland', showscale: true },
+                    text: data.map(i => `Supply: ${i.supply_count}`)
                 };
-
-                const layout = {
-                    margin: {t: 10, l: 40, r: 10, b: 30},
-                    xaxis: {title: 'Number of Rooms'},
-                    yaxis: {title: 'Average Price'}
-                };
-
-                Plotly.newPlot('roomChart', [trace], layout);
+                Plotly.newPlot('roomChart', [trace], { margin: {t:10,l:40,r:10,b:30} });
             });
 
+        // Employees
         fetch('/api/analytics/employees/top/')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                const top5 = data.slice(0, 5);
-                const names = top5.map(item => item.surname);
-                const sales = top5.map(item => item.total_sales_volume);
-
+                const top = data.slice(0, 5);
                 const trace = {
-                    x: sales,
-                    y: names,
+                    x: top.map(i => i.total_sales_volume),
+                    y: top.map(i => i.surname),
                     type: 'bar',
-                    orientation: 'h', // Horizontal
+                    orientation: 'h',
                     marker: {color: '#8B5CF6'}
                 };
-
-                const layout = {
-                    margin: {t: 10, l: 80, r: 10, b: 30}
-                };
-
-                Plotly.newPlot('employeeChart', [trace], layout);
+                Plotly.newPlot('employeeChart', [trace], { margin: {t:10,l:80,r:10,b:30} });
             });
 
+        // Whales
         fetch('/api/analytics/owners/whales/')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                const top5 = data.slice(0, 5);
-                const names = top5.map(item => `${item.name} ${item.surname}`);
-                const values = top5.map(item => item.total_assets);
-
+                const top = data.slice(0, 5);
                 const trace = {
-                    labels: names,
-                    values: values,
+                    labels: top.map(i => `${i.name} ${i.surname}`),
+                    values: top.map(i => i.total_assets),
                     type: 'pie',
                     hole: .4,
                     textinfo: 'label+percent',
-                    textposition: 'inside',
-                    automargin: true
+                    textposition: 'inside'
                 };
-
-                const layout = {
-                    margin: {t: 10, l: 10, r: 10, b: 10},
-                    showlegend: false
-                };
-
-                Plotly.newPlot('whaleChart', [trace], layout);
+                Plotly.newPlot('whaleChart', [trace], { margin: {t:10,l:10,r:10,b:10}, showlegend: false });
             });
-
     </script>
 </body>
 </html>
